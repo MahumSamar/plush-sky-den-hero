@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Plush Sky Den — Drift up high</title>
+<meta name="description" content="Plush Sky Den — a cosy small studio for whimsical 3D skies." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #fdfbfc;
+    --ink: #120a0e;
+    --hot: #e8317a;
+    --deep: #9e0b47;
+    --blush: #ffc2d9;
+    --white: #ffffff;
+    --pad: clamp(18px, 3.4vw, 52px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Outfit", system-ui, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  .hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    background: var(--paper);
+  }
+  #stage {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    display: block;
+    touch-action: pan-y;
+  }
+
+  /* ---------- chrome ---------- */
+  .nav {
+    position: absolute; z-index: 5;
+    top: clamp(28px, 4.6vw, 52px);
+    left: 22.3%;
+    display: flex; flex-direction: column; gap: 2px;
+    font-weight: 300;
+    font-size: clamp(15px, 1.55vw, 21px);
+    line-height: 1.12;
+    color: var(--white);
+    text-shadow: 0 1px 14px rgba(110, 0, 40, .25);
+  }
+  .nav a {
+    position: relative; width: max-content;
+    transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .3s;
+  }
+  .nav a:hover { transform: translateX(6px); }
+  .nav a::before {
+    content: ""; position: absolute; left: -14px; top: 50%;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; transform: translateY(-50%) scale(0);
+    transition: transform .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .nav a:hover::before { transform: translateY(-50%) scale(1); }
+
+  .display {
+    font-family: "Archivo", sans-serif;
+    font-weight: 900;
+    font-stretch: 125%;
+    font-variation-settings: "wdth" 125;
+    text-transform: uppercase;
+    letter-spacing: -.01em;
+    line-height: .86;
+  }
+  .brand {
+    position: absolute; z-index: 5;
+    top: clamp(26px, 4.2vw, 48px);
+    right: var(--pad);
+    font-size: clamp(26px, 3.6vw, 52px);
+    color: var(--ink);
+    text-align: left;
+  }
+  .brand .reg {
+    display: inline-grid; place-items: center;
+    width: .62em; height: .62em; margin-left: .08em;
+    border: .09em solid var(--hot); border-radius: 50%;
+    color: var(--hot); font-size: .62em; line-height: 1;
+    vertical-align: .12em;
+  }
+  .brand .reg span { font-size: .55em; }
+
+  .headline {
+    position: absolute; z-index: 5;
+    left: var(--pad);
+    bottom: clamp(30px, 6vw, 70px);
+    font-size: clamp(38px, 5.6vw, 84px);
+    color: var(--white);
+    text-shadow: 0 2px 30px rgba(110, 0, 40, .25);
+    cursor: default;
+  }
+  .line { display: block; white-space: pre; }
+
+  .cta {
+    position: absolute; z-index: 5;
+    left: 50%; bottom: clamp(30px, 6vw, 70px);
+    transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 34px;
+    padding: 12px 22px 12px 26px;
+    border: 1.5px solid rgba(255,255,255,.9);
+    border-radius: 999px;
+    color: var(--white);
+    font-size: clamp(15px, 1.35vw, 18px);
+    font-weight: 400;
+    background: rgba(255, 255, 255, .06);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background .35s, color .35s, gap .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .cta svg { width: 18px; height: 18px; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+  .cta:hover { background: var(--white); color: var(--deep); gap: 44px; }
+  .cta:hover svg { transform: translateX(3px); }
+
+  a:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: 5px;
+    border-radius: 6px;
+    box-shadow: 0 0 0 5px var(--deep);
+  }
+  .cta:focus-visible { border-radius: 999px; }
+
+  .loader {
+    position: absolute; z-index: 4; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--deep); opacity: .7;
+    transition: opacity .6s;
+    pointer-events: none;
+  }
+  .loader.done { opacity: 0; }
+
+  /* intro */
+  .nav, .cta, .brand { opacity: 0; transition: opacity 1s ease .2s, transform .35s; }
+  .is-ready .nav, .is-ready .cta, .is-ready .brand { opacity: 1; }
+
+  @media (max-width: 760px) {
+    .hero { min-height: 600px; }
+    .nav {
+      left: var(--pad); top: 22px;
+      font-size: 15px;
+    }
+    .brand { top: 22px; font-size: 24px; }
+    .headline { bottom: 104px; font-size: clamp(36px, 11.5vw, 54px); }
+    .cta { left: var(--pad); transform: none; bottom: 34px; gap: 28px; }
+  }
+  @media (max-width: 760px) and (min-aspect-ratio: 1/1) {
+    .headline { bottom: 26px; font-size: 34px; }
+    .cta { left: auto; right: var(--pad); bottom: 26px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav a, .cta, .cta svg { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main class="hero" id="hero">
+  <canvas id="stage" aria-hidden="true"></canvas>
+
+  <nav class="nav" aria-label="Primary">
+    <a href="#work">Reel</a>
+    <a href="#studio">Makers</a>
+    <a href="#playground">Sketchbook</a>
+    <a href="#about">Story</a>
+  </nav>
+
+  <a class="brand display" href="#" aria-label="Plush Sky Den home">
+    <span class="line" data-scramble>Plush</span>
+    <span class="line" data-scramble>Sky</span>
+    <span class="line"><span data-scramble>Den</span><span class="reg" aria-hidden="true"><span>R</span></span></span>
+  </a>
+
+  <h1 class="headline display" id="headline">
+    <span class="line" data-scramble>Drift</span>
+    <span class="line" data-scramble>up high</span>
+  </h1>
+
+  <a class="cta" href="#work">
+    See reel
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+  </a>
+
+  <div class="loader" id="loader">Ascending…</div>
+</main>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+/* Higgsfield assets: clay balloon (with bunny + sandbag pouches) and a clay cloud as 3D GLBs,
+   plus the fur ring rendered from the reference, one landscape and one portrait framing. */
+const MODEL_URL = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_142632_f6127438-07b8-4bac-a44c-339350c784ef.glb";
+const CLOUD_URL = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_142633_0a4b8bb1-d46d-4219-88a0-f7de74f38bc2.glb";
+const POSTER_URL = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_142548_11a2ad58-f5fe-4ec7-862b-7008c5bfe161.png";
+// hole centre (0..1 from left / top) and radius (fraction of image height), measured from each image
+const FUR = {
+  wide: { url: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_142546_67100789-2dce-48c8-a30b-29dc20fe45ff.png", hi: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_142701_6b1600f1-ad5e-4dbf-a3f6-b3186f58acb1.png", aspect: 1344 / 752, cx: .4915, cy: .474, r: .2404 },
+  tall: { url: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_142547_a91c910a-50bb-46de-a05b-93dccbcc5651.png", hi: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_142708_58aef7b4-c406-4f7b-9d93-c9c9790eeb6f.png", aspect: 752 / 1344, cx: .498, cy: .3424, r: .1313 },
+};
+
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hero = document.getElementById("hero");
+const canvas = document.getElementById("stage");
+const isSmall = () => innerWidth < 760;
+
+/* ---------------- renderer ---------------- */
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+renderer.setClearColor(0xffffff, 1);
+renderer.autoClear = false;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+/* ---------------- layout (fur units: 1 unit = half the drawn fur image height, in px) ---------------- */
+const L = { w: 1, h: 1, u: 1, cx: 0, cy: 0, hole: .5, fur: FUR.wide };
+function computeLayout() {
+  const w = hero.clientWidth, h = hero.clientHeight;
+  L.w = w; L.h = h;
+  L.fur = w / h < .85 ? FUR.tall : FUR.wide;
+  const f = L.fur;
+  // cover-fit the image, centred
+  const drawH = w / h > f.aspect ? w / f.aspect : h;
+  L.u = drawH / 2;
+  L.cx = (f.cx - .5) * 2 * f.aspect;
+  L.cy = (.5 - f.cy) * 2;
+  L.hole = f.r * 2;
+}
+
+/* ---------------- fur: the reference fur image, combed live by the wind ---------------- */
+const furScene = new THREE.Scene();
+const furCam = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
+
+const shared = {
+  uTime: { value: 0 },
+  uCenter: { value: new THREE.Vector2() },
+  uHole: { value: .5 },
+  uMouse: { value: new THREE.Vector2(10, 10) },
+  uVel: { value: new THREE.Vector2() },
+  uSwirl: { value: 0 },
+  uGust: { value: 0 },
+  uWindAmp: { value: reduceMotion ? 0.25 : 1 },
+};
+
+const noiseGLSL = `
+  vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+  vec2 mod289(vec2 x){return x-floor(x*(1./289.))*289.;}
+  vec3 permute(vec3 x){return mod289(((x*34.)+1.)*x);}
+  float snoise(vec2 v){
+    const vec4 C=vec4(.211324865405187,.366025403784439,-.577350269189626,.024390243902439);
+    vec2 i=floor(v+dot(v,C.yy)); vec2 x0=v-i+dot(i,C.xx);
+    vec2 i1=(x0.x>x0.y)?vec2(1.,0.):vec2(0.,1.);
+    vec4 x12=x0.xyxy+C.xxzz; x12.xy-=i1; i=mod289(i);
+    vec3 p=permute(permute(i.y+vec3(0.,i1.y,1.))+i.x+vec3(0.,i1.x,1.));
+    vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.); m=m*m; m=m*m;
+    vec3 x=2.*fract(p*C.www)-1.; vec3 h=abs(x)-.5; vec3 ox=floor(x+.5); vec3 a0=x-ox;
+    m*=1.79284291400159-.85373472095314*(a0*a0+h*h);
+    vec3 g; g.x=a0.x*x0.x+h.x*x0.y; g.yz=a0.yz*x12.xz+h.yz*x12.yw;
+    return 130.*dot(m,g);
+  }
+`;
+
+const furMat = new THREE.ShaderMaterial({
+  depthWrite: false, depthTest: false,
+  uniforms: { ...shared, uTex: { value: null }, uImgHalf: { value: new THREE.Vector2(1, 1) } },
+  vertexShader: `varying vec2 vP; void main(){ vP = (modelMatrix * vec4(position, 1.)).xy; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: `
+    precision highp float;
+    uniform sampler2D uTex;
+    uniform vec2 uImgHalf, uCenter, uMouse, uVel;
+    uniform float uTime, uHole, uSwirl, uGust, uWindAmp;
+    varying vec2 vP;
+    ${noiseGLSL}
+    void main(){
+      vec2 p = vP - uCenter;
+      float r = length(p);
+      float a = atan(p.y, p.x);
+      vec2 c = vec2(cos(a), sin(a));
+
+      // roots by the hole stay put, tips sway the most
+      float bend = smoothstep(uHole * .95, uHole * 2.1, r);
+      bend *= .65 + .35 * smoothstep(uHole, uHole * 3.5, r);
+
+      // combed sway + wind waves rolling outward along the strands + cursor vortex
+      float sway  = snoise(c * 1.4 + vec2(uTime * .06, -uTime * .05)) * .04;
+      float wave  = sin(r * 7. - uTime * 1.6 + snoise(c * 1.8 + 2.) * 2.5) * .014;
+      float wave2 = sin(r * 15. - uTime * 2.4 + a * 3. + snoise(c * 3.) * 2.) * .004;
+      float da = (sway + (wave + wave2) * uWindAmp * (1. + uGust * .8) + uSwirl * .35) * bend;
+
+      vec2 q = uCenter + r * vec2(cos(a - da), sin(a - da));
+      // fur breathes in and out a touch
+      q -= c * sin(uTime * .9 + a * 2. + r * 3.) * .006 * bend * uWindAmp;
+
+      // cursor parts the fur under it and drags it along with the air
+      vec2 dm = vP - uMouse;
+      float near = exp(-dot(dm, dm) / .06);
+      float wide = exp(-dot(dm, dm) / .4);
+      q -= normalize(dm + 1e-5) * near * .045 * bend;
+      q -= uVel * wide * .4 * bend;
+
+      vec2 uv = q / uImgHalf * .5 + .5;
+      gl_FragColor = texture2D(uTex, clamp(uv, vec2(.0005), vec2(.9995)));
+    }
+  `,
+});
+const furPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), furMat);
+furScene.add(furPlane);
+
+const texLoader = new THREE.TextureLoader();
+const furTex = {};
+// the light image shows at once; on large screens the 4K upscale swaps in when it arrives
+function loadFur(f, url, then) {
+  if (furTex[url]) return then && then();
+  furTex[url] = "loading";
+  texLoader.load(url, (t) => {
+    t.minFilter = THREE.LinearMipmapLinearFilter;
+    t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    furTex[url] = t;
+    if (L.fur === f && (url === f.hi || !(furTex[f.hi] instanceof THREE.Texture))) furMat.uniforms.uTex.value = t;
+    then && then();
+  });
+}
+function useFur(f) {
+  const best = furTex[f.hi] instanceof THREE.Texture ? furTex[f.hi] : furTex[f.url];
+  if (best instanceof THREE.Texture) furMat.uniforms.uTex.value = best;
+  const wantHi = L.u * 2 * Math.min(devicePixelRatio, 2) > (f.aspect > 1 ? 752 : 1344) * 1.15;
+  loadFur(f, f.url, () => { if (wantHi) loadFur(f, f.hi); });
+}
+
+/* ---------------- balloon + clouds: perspective scene ---------------- */
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+camera.position.set(0, 0, 8);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+
+scene.add(new THREE.HemisphereLight(0xfff4f8, 0xf3b6c9, 0.9));
+const key = new THREE.DirectionalLight(0xffffff, 1.6);
+key.position.set(-3, 4, 5);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xffc6da, 0.9);
+rim.position.set(4, 1, -3);
+scene.add(rim);
+
+const BALLOON_K = 1.0;              // balloon height = hole diameter × K (as in the reference)
+const anchor = new THREE.Group();   // placed at hole centre; 1 local unit = balloon height
+const swing = new THREE.Group();    // pivot near the balloon top so the basket swings
+const body = new THREE.Group();
+anchor.add(swing); swing.add(body);
+scene.add(anchor);
+
+// clouds float on their own, apart from the balloon, positioned in hole radii
+// (measured from the reference: small one upper-left, big one right, tiny one lower-right)
+const CLOUDS = [
+  { x: -.8, y: .14, size: .5, ry: .5, mass: 1.0 },
+  { x: .82, y: -.12, size: .6, ry: -.4, mass: 1.25 },
+  { x: .6, y: -.56, size: .28, ry: .2, mass: .7 },
+].map((c) => ({ ...c, g: new THREE.Group() }));
+CLOUDS.forEach((c) => anchor.add(c.g));
+
+// clay look: matte, slightly soft, with a fine fingerprint bump
+function clayBump() {
+  const s = 256, cv = document.createElement("canvas");
+  cv.width = cv.height = s;
+  const g = cv.getContext("2d");
+  const img = g.createImageData(s, s);
+  for (let i = 0; i < s * s; i++) {
+    const v = 128 + (Math.random() - .5) * 60;
+    img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v; img.data[i * 4 + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  g.filter = "blur(1.4px)"; g.drawImage(cv, 0, 0);
+  const t = new THREE.CanvasTexture(cv);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6, 6);
+  return t;
+}
+const bumpTex = clayBump();
+function clayify(root) {
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    const old = o.material;
+    o.material = new THREE.MeshPhysicalMaterial({
+      map: old.map || null,
+      color: old.map ? 0xffffff : (old.color || new THREE.Color(0xf7a6c4)),
+      normalMap: old.normalMap || null,
+      roughness: 0.82,
+      metalness: 0,
+      sheen: 0.6,
+      sheenRoughness: 0.8,
+      sheenColor: new THREE.Color(0xffd6e4),
+      clearcoat: 0.08,
+      clearcoatRoughness: 0.6,
+      bumpMap: bumpTex,
+      bumpScale: 0.6,
+    });
+    if (o.material.map) o.material.map.colorSpace = THREE.SRGBColorSpace;
+  });
+}
+// normalise a model: unit height (or width), centred on the origin
+function normalise(root, by = "y") {
+  const box = new THREE.Box3().setFromObject(root);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const sc = 1 / size[by];
+  root.scale.setScalar(sc);
+  root.position.set(-center.x * sc, -center.y * sc, -center.z * sc);
+  return root;
+}
+
+const loaded = { balloon: false, clouds: false };
+const markLoaded = (k) => {
+  loaded[k] = true;
+  if (loaded.balloon && loaded.clouds) document.getElementById("loader").classList.add("done");
+};
+
+const gltf = new GLTFLoader();
+gltf.load(MODEL_URL, ({ scene: m }) => {
+  clayify(m);
+  normalise(m);
+  // pivot at the top of the envelope so the basket swings like a pendulum
+  m.position.y -= 0.38;
+  swing.position.y = 0.38;
+  body.add(m);
+  markLoaded("balloon");
+}, undefined, () => {
+  texLoader.load(POSTER_URL, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const sp = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+    sp.position.y = -0.38;
+    swing.position.y = 0.38;
+    body.add(sp);
+    markLoaded("balloon");
+  });
+});
+gltf.load(CLOUD_URL, ({ scene: m }) => {
+  clayify(m);
+  normalise(m, "x");
+  CLOUDS.forEach((c) => {
+    const inst = m.clone();
+    inst.scale.multiplyScalar(c.size / (2 * BALLOON_K));    // size in hole radii → local units
+    inst.rotation.y = c.ry;
+    c.g.add(inst);
+  });
+  markLoaded("clouds");
+}, undefined, () => markLoaded("clouds"));
+
+/* ---------------- resize ---------------- */
+function layout() {
+  computeLayout();
+  const { w, h, u } = L;
+  renderer.setPixelRatio(Math.min(devicePixelRatio, isSmall() ? 1.5 : 2));
+  renderer.setSize(w, h, false);
+
+  const hw = w / 2 / u, hh = h / 2 / u;
+  furCam.left = -hw; furCam.right = hw; furCam.top = hh; furCam.bottom = -hh;
+  furCam.updateProjectionMatrix();
+  furPlane.scale.set(hw, hh, 1);
+  furMat.uniforms.uImgHalf.value.set(L.fur.aspect, 1);
+  shared.uCenter.value.set(L.cx, L.cy);
+  shared.uHole.value = L.hole;
+  useFur(L.fur);
+
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  const worldH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const wpu = worldH / h * u;                 // world units per fur unit
+  anchor.position.set(L.cx * wpu, L.cy * wpu, 0);
+  anchor.scale.setScalar(L.hole * 2 * BALLOON_K * wpu);
+  L.wpu = wpu;
+}
+addEventListener("resize", layout);
+layout();
+
+/* ---------------- pointer → wind ---------------- */
+// Everything below is integrated in fixed 1/240 s sub-steps, so motion is identical
+// at 60, 120 or 144 Hz and never jumps on a dropped frame.
+const ptr = { tx: 0, ty: 0, inside: false, lx: 0, ly: 0, idleW: 1 };
+function toUnits(cx, cy) {
+  const r = hero.getBoundingClientRect();
+  return [(cx - r.left - L.w / 2) / L.u, -(cy - r.top - L.h / 2) / L.u];
+}
+hero.addEventListener("pointermove", (e) => {
+  const [x, y] = toUnits(e.clientX, e.clientY);
+  ptr.inside = true;
+  ptr.lx = x; ptr.ly = y;
+});
+hero.addEventListener("pointerleave", () => { ptr.inside = false; });
+
+// soft saturation: linear for small inputs, eases into a ceiling for big flicks
+const soft = (v, max) => max * Math.tanh(v / max);
+
+const P = {
+  // smoothed cursor (critically damped spring) and its velocity in units/s
+  x: L.cx, y: L.cy, vx: 0, vy: 0,
+  // air: has inertia, catches up to the cursor's motion and coasts to rest
+  wx: 0, wy: 0,
+  // fur vortex: damped torsion spring driven by the air's tangential flow
+  sw: 0, swV: 0,
+  // balloon envelope drift (pivot), in model heights
+  dx: 0, dxV: 0, dy: 0, dyV: 0,
+  // basket pendulum hanging under the envelope
+  th: 0, thV: 0, ph: 0, phV: 0,
+  // where the balloon looks
+  yaw: 0, yawV: 0, pitch: 0, pitchV: 0,
+};
+const m = reduceMotion ? .35 : 1;
+
+function step(h, t) {
+  // cursor target; when the pointer leaves, ease over to a lazy idle breeze path
+  ptr.idleW += ((ptr.inside ? 0 : 1) - ptr.idleW) * (1 - Math.exp(-h / 1.6));
+  const ix = Math.cos(t * .23) * .8 + L.cx, iy = Math.sin(t * .31) * .45 + L.cy;
+  ptr.tx = ptr.lx + (ix - ptr.lx) * ptr.idleW;
+  ptr.ty = ptr.ly + (iy - ptr.ly) * ptr.idleW;
+
+  // critically damped follow, ω = 7 rad/s (~0.3 s to settle, no overshoot)
+  const w0 = 7;
+  P.vx += (w0 * w0 * (ptr.tx - P.x) - 2 * w0 * P.vx) * h;
+  P.vy += (w0 * w0 * (ptr.ty - P.y) - 2 * w0 * P.vy) * h;
+  P.x += P.vx * h; P.y += P.vy * h;
+
+  // air velocity relaxes toward the (softly capped) cursor velocity, τ = 0.45 s
+  const sp = Math.hypot(P.vx, P.vy);
+  const k = sp > 1e-5 ? soft(sp, 1.6) / sp : 0;
+  const a = 1 - Math.exp(-h / .45);
+  P.wx += (P.vx * k - P.wx) * a;
+  P.wy += (P.vy * k - P.wy) * a;
+
+  // vortex: torque = tangential air flow around the hole; spring ω=2.1, ζ=0.55
+  const rx = P.x - L.cx, ry = P.y - L.cy;
+  const rl = Math.max(Math.hypot(rx, ry), .6);
+  const torque = (rx * P.wy - ry * P.wx) / rl;
+  const sw0 = 2.1;
+  P.swV += (torque * 1.6 * m - sw0 * sw0 * P.sw - 2 * .55 * sw0 * P.swV) * h;
+  P.sw += P.swV * h;
+
+  // envelope drift: aerodynamic drag toward wind speed + buoyant tether home
+  const ax = 1.4 * (P.wx * .25 * m - P.dxV) - 2.2 * P.dx - .8 * P.dxV;
+  const ay = 1.4 * (P.wy * .14 * m - P.dyV) - 2.2 * P.dy - .8 * P.dyV;
+  P.dxV += ax * h; P.dx += P.dxV * h;
+  P.dyV += ay * h; P.dy += P.dyV * h;
+
+  // basket: pendulum on an accelerating pivot
+  //   θ'' = -(g/ℓ)·sinθ - c·θ' - (a_pivot/ℓ)·cosθ   (ℓ = 0.75, period ≈ 2.6 s)
+  const g_l = 5.8, len = .75, c = .85;
+  P.thV += (-g_l * Math.sin(P.th) - c * P.thV - (ax / len) * Math.cos(P.th) + .5 * m * P.wx / len) * h;  // + air drag on the basket
+  P.th += P.thV * h;
+  // fore/aft sway from vertical gusts, plus a slow breathing rock
+  P.phV += (-g_l * Math.sin(P.ph) - c * P.phV + (ay / len) * .6 + Math.sin(t * .55) * .04 * m) * h;
+  P.ph += P.phV * h;
+
+  // clouds: light bodies carried by the air, tethered loosely to their spot.
+  // heavier clouds respond later and drift less (drag ∝ 1/mass)
+  for (const cl of CLOUDS) {
+    const kd = 1.6 / cl.mass, kh = 1.8 / cl.mass, cd = .9;
+    cl.vx = (cl.vx || 0) + (kd * (P.wx * .3 * m - cl.vx) - kh * (cl.px || 0) - cd * cl.vx) * h;
+    cl.vy = (cl.vy || 0) + (kd * (P.wy * .18 * m - cl.vy) - kh * (cl.py || 0) - cd * cl.vy) * h;
+    cl.px = (cl.px || 0) + cl.vx * h;
+    cl.py = (cl.py || 0) + cl.vy * h;
+  }
+
+  // the balloon slowly turns to face the cursor (critically damped, ω = 2.4)
+  const nx = soft((P.x - L.cx) / 1.4, 1), ny = soft((P.y - L.cy) / 1.4, 1);
+  const yw = 2.4;
+  P.yawV += (yw * yw * (nx * .5 * m - P.yaw) - 2 * yw * P.yawV) * h;
+  P.yaw += P.yawV * h;
+  P.pitchV += (yw * yw * (-ny * .14 * m - P.pitch) - 2 * yw * P.pitchV) * h;
+  P.pitch += P.pitchV * h;
+}
+
+/* ---------------- loop ---------------- */
+const clock = new THREE.Clock();
+const H = 1 / 240;
+let acc = 0, simT = 0;
+function frame() {
+  acc += Math.min(clock.getDelta(), .1);
+  while (acc >= H) { step(H, simT); simT += H; acc -= H; }
+  const t = simT;
+
+  shared.uTime.value = t;
+  shared.uMouse.value.set(P.x, P.y);
+  shared.uVel.value.set(P.wx * .09, P.wy * .09);
+  shared.uSwirl.value = soft(P.sw, .5);
+  shared.uGust.value = soft(Math.hypot(P.wx, P.wy) / 1.6, 1);
+
+  body.rotation.y = P.yaw + Math.sin(t * .4) * .06 * m;
+  body.rotation.x = P.pitch;
+  swing.rotation.z = P.th;
+  swing.rotation.x = P.ph;
+  swing.position.x = P.dx;
+  swing.position.y = 0.38 + P.dy + Math.sin(t * 1.1) * .02 * m;
+
+  CLOUDS.forEach((cl, i) => {
+    const ph = i * 2.1;
+    cl.g.position.set(
+      cl.x / (2 * BALLOON_K) + (cl.px || 0) + Math.sin(t * .35 + ph) * .012 * m,
+      cl.y / (2 * BALLOON_K) + (cl.py || 0) + Math.sin(t * .8 + ph) * .018 * m,
+      .15
+    );
+    cl.g.rotation.z = -(cl.vx || 0) * .6 + Math.sin(t * .5 + ph) * .03 * m;
+  });
+
+  renderer.clear();
+  if (furMat.uniforms.uTex.value) renderer.render(furScene, furCam);
+  renderer.clearDepth();
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------------- text scramble ---------------- */
+const glyphs = "ABCDEFGHJKLMNOPQRSTUVWXYZ#%&*+=/<>";
+function scramble(el, delay = 0) {
+  const final = el.dataset.text || (el.dataset.text = el.textContent);
+  if (reduceMotion) { el.textContent = final; return; }
+  const start = performance.now() + delay;
+  const dur = 380 + final.length * 70;
+  function step(now) {
+    const p = Math.max(0, (now - start) / dur);
+    let out = "";
+    for (let i = 0; i < final.length; i++) {
+      const ch = final[i];
+      if (ch === " ") { out += " "; continue; }
+      const reveal = (i + 1) / final.length;
+      out += p >= reveal ? ch : (p > reveal - .55 ? glyphs[(Math.random() * glyphs.length) | 0] : " ");
+    }
+    el.textContent = out;
+    if (p < 1) requestAnimationFrame(step); else el.textContent = final;
+  }
+  requestAnimationFrame(step);
+}
+const scrambles = [...document.querySelectorAll("[data-scramble]")];
+scrambles.forEach((el) => { el.dataset.text = el.textContent; el.textContent = " ".repeat(el.dataset.text.length); });
+document.fonts.ready.then(() => {
+  document.body.classList.add("is-ready");
+  scrambles.forEach((el, i) => scramble(el, 250 + i * 160));
+});
+document.getElementById("headline").addEventListener("pointerenter", (e) => {
+  e.currentTarget.querySelectorAll("[data-scramble]").forEach((el, i) => scramble(el, i * 90));
+});
+</script>
+</body>
+</html>
